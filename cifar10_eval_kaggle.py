@@ -36,12 +36,13 @@ def get_model_bn():
 
 def predict(model):
 	test_batches = gen.flow_from_directory(path, target_size=(30,30), 
-		shuffle=False, batch_size=128, class_mode=None)
+		shuffle=False, batch_size=256, class_mode=None)
 	return model.predict_generator(test_batches, test_batches.nb_sample)
 
 path = '/Users/radream/Desktop/cifar-10/kaggle-cifar10-test'
 gen = image.ImageDataGenerator()
-labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 
+			'ship', 'truck']
 
 #model = get_model_bn()
 #model.load_weights('cnn_10l.h5')
@@ -64,3 +65,5 @@ submit_labels = [labels[y] for y in pred_test]
 submit = pd.DataFrame({'id': np.arange(len(submit_labels))+1, 'label': submit_labels})
 submit.to_csv('submit_cifar10.csv', index=False)
 
+# 2457.75121021 seconds for original neurons
+# 4273.35562301 seconds for double neurons

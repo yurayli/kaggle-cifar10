@@ -10,6 +10,7 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 import keras.callbacks as kcb
 
+# Global Contrast Normalization
 def norm_input(x): return (x-mean_px)/std_px
 
 
@@ -63,28 +64,36 @@ for x, y in zip(train_x, train_y):
 		i += 1
 
 
-# define vars
-hidden_num_units = 1024
-label_units = 10
-
 # create model
 model = Sequential([
-	Convolution2D(32, 3, 3, activation='relu', border_mode='same', input_shape=(nChannel,img_size-2,img_size-2)),
-	Convolution2D(32, 3, 3, activation='relu', border_mode='same'),
+	Lambda(norm_input, input_shape=(3,30,30), output_shape=(3,30,30)),
+	Convolution2D(32,3,3, activation='relu', border_mode='same'),
+	BatchNormalization(axis=1),
+	Convolution2D(32,3,3, activation='relu', border_mode='same'),
 	MaxPooling2D(pool_size=(2,2)),
-	Convolution2D(64, 3, 3, activation='relu', border_mode='same'),
-	Convolution2D(64, 3, 3, activation='relu', border_mode='same'),
+	BatchNormalization(axis=1),
+	Convolution2D(64,3,3, activation='relu', border_mode='same'),
+	BatchNormalization(axis=1),
+	Convolution2D(64,3,3, activation='relu', border_mode='same'),
 	MaxPooling2D(pool_size=(2,2)),
-	Convolution2D(128, 3, 3, activation='relu', border_mode='same'),
-	Convolution2D(128, 3, 3, activation='relu', border_mode='same'),
-	Convolution2D(128, 3, 3, activation='relu', border_mode='same'),
+	BatchNormalization(axis=1),
+	Convolution2D(128,3,3, activation='relu', border_mode='same'),
+	BatchNormalization(axis=1),
+	Convolution2D(128,3,3, activation='relu', border_mode='same'),
+	BatchNormalization(axis=1),
+	Convolution2D(128,3,3, activation='relu', border_mode='same'),
 	MaxPooling2D(pool_size=(2,2)),
 	Flatten(),
-	Dense(hidden_num_units, init='he_normal', activation='relu'),
+	BatchNormalization(),
+	Dense(1024, init='he_normal'),
+	BatchNormalization(),
+	Activation('relu'),
 	Dropout(0.5),
-	Dense(hidden_num_units, init='he_normal', activation='relu'),
+	Dense(1024, init='he_normal'),
+	BatchNormalization(),
+	Activation('relu'),
 	Dropout(0.5),
-	Dense(label_units, activation='softmax')
+	Dense(10, activation='softmax')
 	])
 
 
